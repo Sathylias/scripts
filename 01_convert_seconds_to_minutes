@@ -1,0 +1,10 @@
+#!/bin/bash
+
+duration=$1
+
+seconds=$(($duration % 60))
+minutes=$((($duration - $seconds) / 60))
+
+[[ "$seconds" -lt 10 ]] && seconds="0$seconds"
+
+printf "$minutes:$seconds"

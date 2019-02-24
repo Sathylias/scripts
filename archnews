@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+w3m https://www.archlinux.org/ | sed -n "/Latest News/,/Older News/ p" | head -n -1 | less
