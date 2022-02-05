@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Script adapted from the following: 
+# https://github.com/purcell/dotfiles/blob/master/scripts/diary
+
+BASEDIR="$HOME/notes/diary"
+DAY=$(date "+%-d")
+
+# Add a bit of decoration after the date (31st, 23rd, etc)
+make_date_suffix() {
+  local day="$1"
+  local suffix=''
+  
+  case "$day" in
+    1|21|31) suffix='st' ;;
+    2|22)    suffix='nd' ;;
+    3|23)    suffix='rd' ;;
+    *)       suffix='th' ;;
+  esac
+    
+  echo "$suffix"
+}
+
+main() {
+
+  # Create our base diary directory
+  mkdir -p "$BASEDIR" 2> /dev/null || {
+      echo "Failed to create directory '$BASEDIR'." && exit 1
+  }
+
+  local today="$(date +%Y-%m-%d)"
+
+  diary_file="$BASEDIR/$today.md"
+
+  if ! [ -e "$diary_file" ]; then
+    suffix=$(make_date_suffix "$DAY")
+    date=$(date "+%A, %B %-d${suffix} %Y")
+
+    printf "# %s\n" "$date" >> "$diary_file"
+  fi
+
+  if ! command -v 'ranger' > /dev/null; then
+    echo "Please install the 'ranger' package on your system." && exit 0
+  fi
+
+  ranger --selectfile "$diary_file"
+}
+
+main "$@"
