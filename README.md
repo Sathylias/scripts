@@ -15,3 +15,6 @@ As you can probably figure out by its name, it's a simple diary application.
 
 #### xsetcmus.sh
 Prints out the song's title and the duration, to be displayed on DWM statusbar
+
+#### switchkb
+Switches between my different keyboard layouts

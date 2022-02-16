@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+KB_LAYOUTS=(us ca,fr)
+
+index_of() {
+    local item="$1"
+    shift
+    local array=("$@")
+    
+    for i in "${!array[@]}"; do
+        [[ "${array[$i]}" = "${item}" ]] && echo "${i}"    
+    done
+}
+
+switch_layout() {
+    local current_layout=$(setxkbmap -query | awk 'FNR==3 {print $2}')
+    idx=$(index_of "$current_layout" "${KB_LAYOUTS[@]}")
+  
+    [[ "$idx" -eq $((${#KB_LAYOUTS[@]} - 1)) ]] && idx=0 || idx=$((idx + 1))
+
+    setxkbmap "${KB_LAYOUTS[$idx]}"
+}
+
+switch_layout

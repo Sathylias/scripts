@@ -1,0 +1,31 @@
+#!/bin/bash
+## Usage: vmcreate_debian10.sh [options] 
+## 
+## Options:
+##   $vm_name      Create a virtual machine with the specified name
+
+main() {
+
+    vm_name="$1"
+
+    echo "$(tput setaf 2)Installation starting for Domain '$vm_name'.."
+
+    virt-install \
+        --name $vm_name \
+        --disk path=/var/lib/libvirt/images/$vm_name.qcow2,size=20 \
+        --ram=1024 \
+        --vcpus=1 \
+        --cpu host \
+        --virt-type kvm \
+        --os-type linux \
+        --os-variant debian10 \
+        --network bridge=br0 \
+        --hvm \
+        --cdrom /var/lib/libvirt/boot/debian-10.9.0-amd64-netinst.iso \
+        --graphics vnc \
+        --noautoconsole
+
+    echo -e "\nFinished Installation..$(tput sgr0)"
+}
+
+main "$@"

@@ -1,0 +1,43 @@
+#!/bin/bash
+## Usage: vmcreate_debian10.sh [options] 
+## 
+## Options:
+##   vm_name - Create a virtual machine with the specified name
+##   template - Use the following template to create the VM 
+
+# Default PATH where the VMs are stored
+DISKPATH=/var/lib/libvirt/images
+
+# Path for templates that have been configured with virt-sysprep
+TPLPATH=$DISKPATH/templates
+
+main() {
+
+    vm_name="$1"
+    template="$2"
+
+    echo "$(tput setaf 2)Copying template file..$(tput sgr0)"
+
+    cp $TPLPATH/$template $DISKPATH/$vm_name.qcow2
+
+    echo "$(tput setaf 2)Installation starting for Domain '$vm_name' using template $template.."
+
+    virt-install \
+        --name $vm_name \
+        --disk path=$DISKPATH/$vm_name.qcow2 \
+        --ram=1024 \
+        --vcpus=1 \
+        --cpu host \
+        --virt-type kvm \
+        --os-type linux \
+        --os-variant debian10 \
+        --network bridge=br0 \
+        --hvm \
+        --import \
+        --graphics vnc \
+        --noautoconsole
+
+    echo -e "\nFinished Installation..$(tput sgr0)"
+}
+
+main "$@"
