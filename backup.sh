@@ -13,8 +13,8 @@
 #/                Print this help message
 #/
 #/ EXAMPLES
-#/   backup.sh --user sysadmin --host 192.168.0.100:/backup
-#/   backup.sh --dry-run --host 192.168.0.100:/backup
+#/   backup.sh --user sysadmin 192.168.0.100:/backup/
+#/   backup.sh --dry-run 192.168.0.100:/backup/
 
 # Prerequisites:
 #   - Having rsync installed on your machine
@@ -32,16 +32,9 @@ rsync_options=(
     --progress # -P option
     --exclude-from 'backup_exclude.txt')
   
-# Boy, what a very useful wizardry, jolly good !
-usage() {
-  grep '^#/' "$0" | cut -c4-
-  exit 0
-}
+usage() { grep '^#/' "$0" | cut -c4- && exit 0; }
 
-die() {
-  local err_msg="$1"
-  printf "ERROR: %s\n" "$err_msg" && exit 1
-}
+die() { printf "ERROR: %s\n" "$1" && exit 1; }
 
 check_requirements() {
   if ! command -v "rsync" > /dev/null; then
@@ -50,14 +43,23 @@ check_requirements() {
 }
 
 parse_arguments() {
-  for i in "$@"; do
-    case "$i" in
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
       help)
 	usage
 	;;
       --dry-run)
 	printf "[INFO] Running dry run.\n"
 	rsync_options+=(--dry-run)
+	shift
+	;;
+      --user)
+	BACKUP_USER="$2"
+	shift 2
+	;;
+      *)
+	BACKUP_DEST="$1"
+	shift
 	;;
     esac
   done
@@ -78,9 +80,13 @@ main() {
   
   local backup_id=$(make_backup_id)
 
+  if [[ -z "$BACKUP_DEST" ]]; then
+    die "The backup destination wasn't specified."
+  fi
+  
   printf "Creating backup with the following id: %s\n" "$backup_id"
 
-  rsync "${rsync_options[@]}" /home/sysadmin/ sysadmin@192.168.0.104:/backup/"$backup_id"
+  rsync "${rsync_options[@]}" /home/sysadmin/ "${BACKUP_USER}@${BACKUP_DEST}${backup_id}"
 }
 
 main "$@"
