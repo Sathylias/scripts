@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+
+import sys
+import requests
+
+def main():
+    if len(sys.argv) < 2:
+        print('Usage: gitrepo <user>')
+    else:
+        user = sys.argv[1]
+        data = requests.get(f'https://api.github.com/users/{user}/repos').json()
+
+        if not data:
+            print('This user has no repositories or is non-existent..')
+            sys.exit()
+
+        gap_name = max(len(repo['name']) for repo in data) + 4
+        gap_desc = max(len(repo['description'] or "") for repo in data) + 4
+        gap_lang = max(len(repo['language'] or "") for repo in data) + 4
+
+        for repo in data:
+            print(
+                f'{repo["name"]: <{gap_name}}'
+                f'{repo["description"] or "": <{gap_desc}}'
+                f'stars: {repo["stargazers_count"]}\n'
+                f'Language used: {repo["language"]: <{gap_lang}}'
+                f'Created at {repo["created_at"]}\n'
+            )
+
+if __name__ == "__main__":
+    main()
